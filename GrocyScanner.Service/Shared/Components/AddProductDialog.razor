@@ -1,0 +1,126 @@
+@using GrocyScanner.Core.Models
+@using GrocyScanner.Core.Providers
+@using GrocyScanner.Core.GrocyClient
+
+@inject IProductProvider ProductProvider
+@inject IGrocyClient GrocyClient
+
+<MudDialog>
+    <DialogContent>
+        @if (Product != null)
+        {
+            <MudCard Outlined="true">
+                @if (!string.IsNullOrEmpty(Product.ImageUrl))
+                {
+                    <div class="py-2">
+                        <MudCardMedia Image="@Product.ImageUrl" Height="150" Style="background-size: contain;"></MudCardMedia>
+                    </div>
+                }
+
+                <MudCardContent>
+                    <MudText Typo="Typo.subtitle1" Color="Color.Info">@Product.Gtin</MudText>
+                    <MudText Typo="Typo.h4" Class="fw-bold">@Product.Name</MudText>
+
+                    <MudDatePicker
+                        Variant="Variant.Filled"
+                        Class="mt-4"
+                        Label="Best before (optional)"
+                        @bind-Date="FormBestBefore"
+                        Margin="Margin.Dense"
+                        MinDate="DateTime.Today"
+                        DateFormat="dd.MM.yyyy"/>
+                    <MudNumericField
+                        @bind-Value="FormPrice"
+                        Format="N2"
+                        Label="Price"
+                        Margin="Margin.Dense"
+                        Variant="Variant.Filled"
+                        Min="0.0"/>
+                    <MudNumericField
+                        @bind-Value="FormAmount"
+                        Format="N0"
+                        Label="Amount"
+                        Margin="Margin.Dense"
+                        Variant="Variant.Filled"
+                        Min="0"
+                        Max="999"/>
+                </MudCardContent>
+
+                <MudCardActions>
+
+                </MudCardActions>
+            </MudCard>
+        }
+        @if (IsLoading)
+        {
+            <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="150px" Class="mb-3"/>
+            <MudSkeleton/>
+            <MudSkeleton/>
+        }
+        @if (!IsLoading && Product == null)
+        {
+            <MudCard Outlined="true">
+                <MudCardContent>
+                    <MudImage Src="/undraw_taken_re_yn20.svg" Width="200" Height="200" Class="mx-auto d-block mb-4"></MudImage>
+                    <MudText Typo="Typo.h4" Class="fw-bold text-center">Unable to find Product</MudText>
+                    <MudText Class="text-center">Sorry, I was unable to find a matching product.</MudText>
+                </MudCardContent>
+            </MudCard>
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton
+            OnClick="OnClickPurchase"
+            Variant="Variant.Filled"
+            Color="Color.Primary"
+            Disabled="IsLoading || Product == null">
+            Purchase
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+
+    [CascadingParameter]
+    public required MudDialogInstance MudDialog { get; set; }
+
+    [Parameter]
+    public required string Barcode { get; set; }
+
+    // state management
+    private bool IsLoading { get; set; }
+
+    // data management
+    private Product? Product { get; set; }
+
+    // form
+    private DateTime? FormBestBefore { get; set; }
+    private double FormPrice { get; set; }
+    private int FormAmount { get; set; } = 1;
+
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        IsLoading = true;
+        Product = await ProductProvider.GetProductByGtin(Barcode);
+        IsLoading = false;
+    }
+
+    private async Task OnClickPurchase()
+    {
+        if (Product == null)
+        {
+            return;
+        }
+
+        DateOnly? bestBeforeDate = FormBestBefore.HasValue ? DateOnly.FromDateTime(FormBestBefore.Value) : null;
+        await GrocyClient.UpsertProduct(Product, FormAmount, bestBeforeDate, FormPrice);
+        MudDialog.Close(DialogResult.Ok(true));
+    }
+
+}

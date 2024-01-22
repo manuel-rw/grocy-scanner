@@ -1,0 +1,131 @@
+@page "/Scanner"
+@using GrocyScanner.Core.Models
+@using GrocyScanner.Core.Validators
+@using GrocyScanner.Service.Request
+@using GrocyScanner.Service.Shared.Components
+@inject IGtinValidator GtinValidator
+@using Microsoft.AspNetCore.SignalR.Client
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JS
+@inject IDialogService DialogService
+
+<PageTitle>Scanner • Grocy Scanner</PageTitle>
+
+<div class="position-relative mb-5">
+    <MudStack Class="mb-3">
+        <MudToggleGroup
+            T="ScannerMode"
+            SelectionMode="SelectionMode.SingleSelection"
+            @bind-Value="ScannerMode"
+            Color="Color.Primary"
+            CheckMark
+            FixedContent>
+            <MudToggleItem Value="@ScannerMode.Purchase" Text="Purchase"/>
+            <MudToggleItem Value="@ScannerMode.Consume" Text="Consume"/>
+            <MudToggleItem Value="@ScannerMode.ConsumeSpoiled" Text="Consume (spoiled)"/>
+        </MudToggleGroup>
+    </MudStack>
+    <MudTextField
+        @bind-Value="Barcode"
+        T="string"
+        Margin="Margin.Dense"
+        Label="Filled"
+        Variant="Variant.Filled"
+        Required="true"
+        RequiredError="'Barcode is required'"
+        TextChanged="OnInternalValueChanged">
+    </MudTextField>
+</div>
+
+<div class="d-flex gap-2 mt-4">
+    <MudSelect
+        ValueChanged="OnSelectedCameraChanged"
+        Margin="Margin.Dense"
+        T="CameraNotification"
+        Label="Available Cameras"
+        AnchorOrigin="Origin.BottomCenter"
+        Variant="Variant.Filled">
+        @foreach (CameraNotification camera in AvailableCameras)
+        {
+            <MudSelectItem
+                Value="@camera">
+                @camera.Label
+            </MudSelectItem>
+        }
+    </MudSelect>
+    <MudButton
+        OnClick="OnRefreshAvailableCameras"
+        Variant="Variant.Filled"
+        Color="Color.Secondary"
+        Class="my-1">
+        Refresh
+    </MudButton>
+</div>
+
+<div id="reader" style="width: 600px; height: 400px;"></div>
+
+<FullScreenToggle/>
+
+@code {
+    private ScannerMode ScannerMode { get; set; } = ScannerMode.Purchase;
+    private ICollection<CameraNotification> AvailableCameras { get; set; } = new List<CameraNotification>();
+    private CameraNotification? CurrentSelectedCamera { get; set; }
+    private string Barcode { get; set; } = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        HubConnection hubConnection = new HubConnectionBuilder()
+            .WithUrl(NavigationManager.ToAbsoluteUri("/hubs/barcode"))
+            .Build();
+
+        hubConnection.On<string>("BarcodeScanned", async barcode =>
+        {
+            await InvokeAsync(async () => await OpenDialog(barcode));
+            await InvokeAsync(StateHasChanged);
+        });
+
+        hubConnection.On<IEnumerable<CameraNotification>>("CamerasUpdated", async cameras =>
+        {
+            AvailableCameras = cameras.ToList();
+            await InvokeAsync(StateHasChanged);
+        });
+
+        await hubConnection.StartAsync();
+    }
+
+    private async Task OnRefreshAvailableCameras()
+    {
+        await JS.InvokeVoidAsync("updateAvailableCameras");
+    }
+
+    private async Task OnSelectedCameraChanged(CameraNotification cameraNotification)
+    {
+        await JS.InvokeVoidAsync("startScanningWithCamera", cameraNotification.Id);
+        CurrentSelectedCamera = cameraNotification;
+    }
+
+    private async Task OnInternalValueChanged()
+    {
+        if (!GtinValidator.Validate(Barcode))
+        {
+            return;
+        }
+
+        await OpenDialog(Barcode);
+    }
+
+    private async Task OpenDialog(string barcode)
+    {
+        var parameters = new DialogParameters<AddProductDialog> { { nameof(AddProductDialog.Barcode), barcode } };
+        await DialogService.ShowAsync<AddProductDialog>("Purchase Product", parameters, new DialogOptions
+        {
+            CloseOnEscapeKey = false,
+            DisableBackdropClick = true,
+            CloseButton = false,
+            FullScreen = true
+        });
+
+        Barcode = string.Empty;
+    }
+
+}

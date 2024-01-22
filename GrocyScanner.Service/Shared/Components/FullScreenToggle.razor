@@ -1,0 +1,21 @@
+@inject IJSRuntime JS
+
+<div class="position-fixed bottom-0 end-0 m-2">
+    <MudFab OnClick="OnClickFullScreen" UserAttributes="@(new Dictionary<string, object?> { { "id", "fab-toggle-fullscreen" } })" Icon="@Icons.Material.Filled.Fullscreen"/>
+    <MudFab OnClick="OnClickExitFullScreen" UserAttributes="@(new Dictionary<string, object?> { { "id", "fab-toggle-exit-fullscreen" } })" Icon="@Icons.Material.Filled.FullscreenExit"/>
+</div>
+
+@code {
+
+
+    private async Task OnClickFullScreen()
+    {
+        await JS.InvokeVoidAsync("openFullScreen");
+    }
+
+    private async Task OnClickExitFullScreen()
+    {
+        await JS.InvokeVoidAsync("closeFullScreen");
+    }
+
+}
