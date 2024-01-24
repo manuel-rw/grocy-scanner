@@ -8,9 +8,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{2994D1
 	ProjectSection(SolutionItems) = preProject
 		Dockerfile = Dockerfile
 		README.md = README.md
+		.gitignore = .gitignore
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documentation", "Documentation", "{1A81D5E9-36E2-4E80-96D3-AB9BECFBE429}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{F9489E27-2358-4AE0-88B7-DF6E100CFCD9}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\docker-publish.yml = .github\workflows\docker-publish.yml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,5 +35,6 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{1A81D5E9-36E2-4E80-96D3-AB9BECFBE429} = {2994D1C0-E1EE-4E65-8F19-2F2EBE9F1DC5}
+		{F9489E27-2358-4AE0-88B7-DF6E100CFCD9} = {2994D1C0-E1EE-4E65-8F19-2F2EBE9F1DC5}
 	EndGlobalSection
 EndGlobal
