@@ -7,7 +7,10 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{2994D1C0-E1EE-4E65-8F19-2F2EBE9F1DC5}"
 	ProjectSection(SolutionItems) = preProject
 		Dockerfile = Dockerfile
+		README.md = README.md
 	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documentation", "Documentation", "{1A81D5E9-36E2-4E80-96D3-AB9BECFBE429}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,5 +26,8 @@ Global
 		{0F11AAF1-5B35-4180-8A7D-3C8263C90225}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0F11AAF1-5B35-4180-8A7D-3C8263C90225}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0F11AAF1-5B35-4180-8A7D-3C8263C90225}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{1A81D5E9-36E2-4E80-96D3-AB9BECFBE429} = {2994D1C0-E1EE-4E65-8F19-2F2EBE9F1DC5}
 	EndGlobalSection
 EndGlobal
