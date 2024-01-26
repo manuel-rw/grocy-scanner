@@ -4,12 +4,14 @@
 </div>
 
 ## About and Motivation
-Scan EAN8 / EAN16 barcodes on your products with a camera and add them to your [Grocy](https://grocy.info) in one click.
+Scan EAN8 / EAN16 barcodes on your products with a camera (or a barcode reader) and add them to your [Grocy](https://grocy.info) in one click.
 This is heavily inspired from [barcodebuddy](https://github.com/Forceu/barcodebuddy).
-The key difference is how Grocy Scanner is handling products. It will never ask you to  map it to an existing product or manually create it, but create it automatically for you in Grocy.
+The key difference is how Grocy Scanner is handling products. It will never ask you to  map it to an existing product or manually create it, but create it automatically for you in Grocy or update their stock.
 
-Grocy Scanner uses a list of crowd-sourced and proprietary lists from retails to lookup barcodes.
+Grocy Scanner uses a list of crowd-sourced and proprietary lists from retailers to lookup barcodes.
 It was written to recognize products for the most popular retailers in Switzerland, but may find products from retailers in other countries as well.
+
+It's automatic algorithm analyzes the data and chooses the data with the highest quality.
 
 ## Screenshots
 
