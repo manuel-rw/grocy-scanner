@@ -3,13 +3,15 @@
     <h4>Lazy version of <a href="https://github.com/Forceu/barcodebuddy">Barcodebuddy</a></h4>
 </div>
 
-## About
-Scan your products with a camera and add them to your Grocy in one click.
-It attempts to find an existing product with the barcode or will search and create one automatically if Grocy does not know this product yet.
-This only works with Products that have a barcode and are available on one of the providers.
-
+## About and Motivation
+Scan EAN8 / EAN16 barcodes on your products with a camera and add them to your [Grocy](https://grocy.info) in one click.
 This is heavily inspired from [barcodebuddy](https://github.com/Forceu/barcodebuddy).
-However, instead of prompting you to create the product, it will create the product itself.
+The key difference is how Grocy Scanner is handling products. It will never ask you to  map it to an existing product or manually create it, but create it automatically for you in Grocy.
+
+Grocy Scanner uses a list of crowd-sourced and proprietary lists from retails to lookup barcodes.
+It was written to recognize products for the most popular retailers in Switzerland, but may find products from retailers in other countries as well.
+
+## Screenshots
 
 ![](./Documentation/screenshot-scanner.png)
 ![](./Documentation/screenshot-purchase-product.png)
@@ -43,3 +45,8 @@ Application will start on http://your-hostname:7575
 - Scroll to "Networking and services", select http as the type and enter 80 for both target and port.
 - (Optional): Set up ingress
 - Scroll to the bottom and click "Install"
+
+## Notes
+- Retailers can rate limit or drop your request depending on your country and amount of requests.
+Please ensure fair usage of these resources. Grocy Scanner already tries to minimize requests as much as possible.
+- This application does and will never support products without EAN8/13 barcode.
