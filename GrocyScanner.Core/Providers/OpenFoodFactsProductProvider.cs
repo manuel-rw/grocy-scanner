@@ -43,4 +43,5 @@ public class OpenFoodFactsProductProvider : IProductProvider
 
     public string Name => "Open Food Facts";
     public string IconUri => "/open-food-facts-logo.png";
+    public string Country => "Global";
 }

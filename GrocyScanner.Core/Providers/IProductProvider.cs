@@ -9,4 +9,6 @@ public interface IProductProvider
     public string Name { get; }
     
     public string IconUri { get; }
+    
+    public string Country { get; }
 }

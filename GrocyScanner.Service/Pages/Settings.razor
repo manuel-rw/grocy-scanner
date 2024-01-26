@@ -12,10 +12,13 @@
 <MudList>
     @foreach (IProductProvider provider in ProductProviders)
     {
-        <MudListItem Avatar="<image href='https://ch.openfoodfacts.org/images/favicon/apple-touch-icon.png' width='100%' height='100%' />">
+        <MudListItem Avatar="@($"<image href='{provider.IconUri}' width='100%' height='100%' />")">
             <div class="d-flex align-items-center gap-3">
-                <MudText>@provider.Name</MudText>
-                <MudChip Variant="Variant.Text" Color="Color.Success">Enabled</MudChip>
+                <div>
+                    <MudText>@provider.Name</MudText>
+                    <MudText Typo="Typo.body2" Style="@($"color:{Colors.Grey.Default};")">@provider.Country</MudText>
+                </div>
+                <MudChip Variant="Variant.Text" Color="Color.Dark">Enabled</MudChip>
             </div>
         </MudListItem>
     }
