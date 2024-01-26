@@ -1,10 +1,11 @@
 @using GrocyScanner.Core.Models
-@using GrocyScanner.Core.Providers
 @using GrocyScanner.Core.GrocyClient
+@using GrocyScanner.Core.Providers
+@using GrocyScanner.Core.ValueCalculator
 @using Humanizer
-
-@inject IProductProvider ProductProvider
+@inject IEnumerable<IProductProvider> ProductProviders
 @inject IGrocyClient GrocyClient
+@inject IBestValueCalculator BestValueCalculator
 
 <MudDialog>
     <DialogContent>
@@ -65,6 +66,8 @@
                 </MudCardContent>
             </MudCard>
         }
+        
+        <p>Requested at @ProductProviders.Count() providers</p>
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">Cancel</MudButton>
@@ -105,7 +108,8 @@
     protected override async Task OnInitializedAsync()
     {
         IsLoading = true;
-        Product = await ProductProvider.GetProductByGtin(Barcode);
+        var products = await Task.WhenAll(ProductProviders.Select(async provider => await provider.GetProductByGtin(Barcode)));
+        Product = BestValueCalculator.GetProductWithMostValue(products.Where(product => product != null).Cast<Product>().ToList());
         IsLoading = false;
     }
 

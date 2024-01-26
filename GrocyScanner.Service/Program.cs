@@ -2,6 +2,7 @@ using GrocyScanner.Core.Configurations;
 using GrocyScanner.Core.GrocyClient;
 using GrocyScanner.Core.Providers;
 using GrocyScanner.Core.Validators;
+using GrocyScanner.Core.ValueCalculator;
 using GrocyScanner.Service.Hubs;
 using MudBlazor;
 using MudBlazor.Services;
@@ -24,6 +25,10 @@ builder.Services.AddSingleton<IGrocyQuantityUnit, GrocyQuantityUnitsMasterData>(
 builder.Services.AddSingleton<IGrocyLocations, GrocyLocationMasterData>();
 builder.Services.AddSignalR();
 builder.Services.AddScoped<QrCodeScanHub>();
+
+builder.Services.AddSingleton<IValueCalculator, ProductValueCalculator>();
+builder.Services.AddSingleton<IValueCalculatorRule, MissingImageCalculateRule>();
+builder.Services.AddSingleton<IBestValueCalculator, BestProductValueCalculator>();
 
 builder.Services.Configure<GrocyConfiguration>(configurationRoot.GetSection(GrocyConfiguration.Name));
 builder.Services.AddHttpClient();
