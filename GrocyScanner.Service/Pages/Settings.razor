@@ -1,5 +1,22 @@
 @page "/Settings"
+@using GrocyScanner.Core.Providers
 
-<h3>Settings</h3>
+@inject IEnumerable<IProductProvider> ProductProviders
 
-<p class="fw-bold text-danger">Settings are currently unavailable in this version.</p>
+<PageTitle>Settings • Grocy Scanner</PageTitle>
+
+<h3 class="fw-bolder mb-3">Settings</h3>
+
+<h4>Active Indexers</h4>
+
+<MudList>
+    @foreach (IProductProvider provider in ProductProviders)
+    {
+        <MudListItem Avatar="<image href='https://ch.openfoodfacts.org/images/favicon/apple-touch-icon.png' width='100%' height='100%' />">
+            <div class="d-flex align-items-center gap-3">
+                <MudText>@provider.Name</MudText>
+                <MudChip Variant="Variant.Text" Color="Color.Success">Enabled</MudChip>
+            </div>
+        </MudListItem>
+    }
+</MudList>

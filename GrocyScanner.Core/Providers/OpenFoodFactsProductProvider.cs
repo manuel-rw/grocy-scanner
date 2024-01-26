@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using OpenFoodFacts4Net.ApiClient;
 using OpenFoodFacts4Net.Json.Data;
 using Product = GrocyScanner.Core.Models.Product;
@@ -6,6 +7,13 @@ namespace GrocyScanner.Core.Providers;
 
 public class OpenFoodFactsProductProvider : IProductProvider
 {
+    private readonly ILogger<OpenFoodFactsProductProvider> _logger;
+
+    public OpenFoodFactsProductProvider(ILogger<OpenFoodFactsProductProvider> logger)
+    {
+        _logger = logger;
+    }
+
     public async Task<Product?> GetProductByGtin(string gtin)
     {
         Client client = new();
@@ -28,7 +36,11 @@ public class OpenFoodFactsProductProvider : IProductProvider
         }
         catch (HttpRequestException httpRequestException)
         {
+            _logger.LogError(httpRequestException, "Unable to request {Gtin}", gtin);
             return null;
         }
     }
+
+    public string Name => "Open Food Facts";
+    public string IconUri => "/open-food-facts-logo.png";
 }
