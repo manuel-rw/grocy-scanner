@@ -1,6 +1,7 @@
 @using GrocyScanner.Core.Models
 @using GrocyScanner.Core.Providers
 @using GrocyScanner.Core.GrocyClient
+@using Humanizer
 
 @inject IProductProvider ProductProvider
 @inject IGrocyClient GrocyClient
@@ -12,14 +13,14 @@
             <MudCard Outlined="true">
                 @if (!string.IsNullOrEmpty(Product.ImageUrl))
                 {
-                    <div class="py-2">
-                        <MudCardMedia Image="@Product.ImageUrl" Height="150" Style="background-size: contain;"></MudCardMedia>
+                    <div class="py-2 d-flex align-items-center justify-content-center">
+                        <img class="rounded" src="@Product.ImageUrl" height="150" alt="product image"/>
                     </div>
                 }
 
                 <MudCardContent>
-                    <MudText Typo="Typo.subtitle1" Color="Color.Info">@Product.Gtin</MudText>
-                    <MudText Typo="Typo.h4" Class="fw-bold">@Product.Name</MudText>
+                    <MudText Typo="Typo.h5" Class="fw-bold">@Product.Gtin</MudText>
+                    <MudText Typo="Typo.h4" Class="fw-bold">@Product.Name.Humanize()</MudText>
 
                     <MudDatePicker
                         Variant="Variant.Filled"
@@ -35,20 +36,17 @@
                         Label="Price"
                         Margin="Margin.Dense"
                         Variant="Variant.Filled"
-                        Min="0.0"/>
+                        Min="0.0"
+                        Max="int.MaxValue"/>
                     <MudNumericField
                         @bind-Value="FormAmount"
                         Format="N0"
                         Label="Amount"
                         Margin="Margin.Dense"
                         Variant="Variant.Filled"
-                        Min="0"
+                        Min="1"
                         Max="999"/>
                 </MudCardContent>
-
-                <MudCardActions>
-
-                </MudCardActions>
             </MudCard>
         }
         @if (IsLoading)
