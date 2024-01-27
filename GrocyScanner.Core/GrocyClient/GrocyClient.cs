@@ -80,13 +80,16 @@ public class GrocyClient : IGrocyClient
             throw new ArgumentException("Amount cannot be negative", nameof(amount));
         }
 
+        // this is Grocy's way of "no due date". Inserting null sadly displays "today" as the due date
+        DateOnly bestBeforeOrDefault = bestBefore ?? new DateOnly(2999, 12, 31);
+
         HttpClient httpClient = _httpClientFactory.CreateClient();
         HttpRequestMessage httpRequestMessage = new(HttpMethod.Post,
             $"{_grocyConfiguration.Value.BaseUrl}/api/stock/products/{productId}/add");
         httpRequestMessage.Headers.Add("GROCY-API-KEY", _grocyConfiguration.Value.ApiKey);
         httpRequestMessage.Headers.Add("accept", "application/json");
-        string json =
-            $@"{{""amount"": {amount},""best_before_date"":""{bestBefore:yyyy-MM-dd}"",""price"":""{price:N}""}}";
+        string json = 
+            $@"{{""amount"": {amount},""best_before_date"":""{bestBeforeOrDefault:yyyy-MM-dd}"",""price"":""{price:N}""}}";
         httpRequestMessage.Content = new StringContent(json);
         httpRequestMessage.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
         await httpClient.SendAsync(httpRequestMessage);

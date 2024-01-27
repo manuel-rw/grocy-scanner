@@ -78,13 +78,14 @@ public class CoopProductProvider : IProductProvider
 
     private static string GetBestQualityImage(CoopProductImage coopProductImage)
     {
-        return coopProductImage.Srcset
+        string uri = coopProductImage.Srcset
             .OrderByDescending(sourceSetPair =>
                 int.Parse(sourceSetPair
                     .Last()
                     .Trim('w')))
             .First()
             .First();
+        return $"https:{uri}";
     }
 
     public string Name => "Coop";
