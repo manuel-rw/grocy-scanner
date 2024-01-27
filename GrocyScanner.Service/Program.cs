@@ -1,3 +1,4 @@
+using Blazored.LocalStorage;
 using GrocyScanner.Core.Configurations;
 using GrocyScanner.Core.GrocyClient;
 using GrocyScanner.Core.Providers;
@@ -34,6 +35,7 @@ builder.Services.Configure<GrocyConfiguration>(configurationRoot.GetSection(Groc
 builder.Services.AddHttpClient();
 builder.Services.AddMudServices();
 builder.Services.AddScoped<IDialogService, DialogService>();
+builder.Services.AddBlazoredLocalStorage();
 
 WebApplication app = builder.Build();
 
