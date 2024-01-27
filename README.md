@@ -19,6 +19,12 @@ It's automatic algorithm analyzes the data and chooses the data with the highest
 ![](./Documentation/screenshot-purchase-product.png)
 ![](./Documentation/screenshot-qrcode-scanner.png)
 
+## Available Providers
+
+- https://migros.ch
+- https://coop.ch
+- https://ch.openfoodfacts.org/
+
 ## Installation
 ### Docker Compose
 ```yaml
