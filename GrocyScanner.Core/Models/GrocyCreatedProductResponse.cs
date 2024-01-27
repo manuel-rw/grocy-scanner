@@ -5,5 +5,5 @@ namespace GrocyScanner.Core.Models;
 public class GrocyCreatedProductResponse
 {
     [JsonPropertyName("created_object_id")]
-    public string ProductId { get; set; }
+    public required string ProductId { get; set; }
 }

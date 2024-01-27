@@ -53,10 +53,7 @@ if (!app.Environment.IsDevelopment())
 app.UseStaticFiles();
 
 app.UseRouting();
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapHub<QrCodeScanHub>("/hubs/barcode");
-});
+app.MapHub<QrCodeScanHub>("/hubs/barcode");
 app.MapControllers();
 
 app.MapBlazorHub();

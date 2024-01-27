@@ -5,7 +5,7 @@ namespace GrocyScanner.Core.Models;
 public class GrocyProduct
 {
     [JsonPropertyName("name")]
-    public string Name { get; set; }
+    public required string Name { get; set; }
 
     [JsonPropertyName("location_id")]
     public string? LocationId { get; set; }
