@@ -108,8 +108,21 @@
     protected override async Task OnInitializedAsync()
     {
         IsLoading = true;
-        var products = await Task.WhenAll(ProductProviders.Select(async provider => await provider.GetProductByGtin(Barcode)));
-        Product = BestValueCalculator.GetProductWithMostValue(products.Where(product => product != null).Cast<Product>().ToList());
+        
+        Product? productFromGrocy = await GrocyClient.GetProductByBarcode(Barcode);
+
+        // product is not known, must be searched in the providers
+        if (productFromGrocy == null)
+        {
+            var products = await Task.WhenAll(ProductProviders.Select(async provider => await provider.GetProductByGtin(Barcode)));
+            Product = BestValueCalculator.GetProductWithMostValue(products.Where(product => product != null).Cast<Product>().ToList());
+        }
+        else
+        {
+            // product is known and can be fetched from Grocy
+            Product = productFromGrocy;
+        }
+
         IsLoading = false;
     }
 

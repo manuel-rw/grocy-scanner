@@ -47,6 +47,40 @@ public class GrocyClient : IGrocyClient
         return productBarcodes.SingleOrDefault(productBarcode => productBarcode.Barcode.Equals(gtin))?.ProductId;
     }
 
+    public async Task<Product?> GetProductByBarcode(string gtin)
+    {
+        int? productId = await GetProductIdByBarcode(gtin);
+        if (productId == null)
+        {
+            return null;
+        }
+
+        using HttpClient httpClient = _httpClientFactory.CreateClient();
+        using HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, $"{_grocyConfiguration.Value.BaseUrl}/api/objects/products?query%5B%5D=id%3D{productId}");
+        httpRequestMessage.Headers.Add("GROCY-API-KEY", _grocyConfiguration.Value.ApiKey);
+        httpRequestMessage.Headers.Add("accept", "application/json");
+        HttpResponseMessage httpResponseMessage = await httpClient.SendAsync(httpRequestMessage);
+        httpResponseMessage.EnsureSuccessStatusCode();
+        string content = await httpResponseMessage.Content.ReadAsStringAsync();
+        JsonDocument jsonDocument = JsonDocument.Parse(content);
+
+        if (jsonDocument.RootElement.GetArrayLength() != 1)
+        {
+            _logger.LogError("Unexpected array length from Grocy for product id {ProductId}: {Length}", productId, jsonDocument.RootElement.GetArrayLength());
+            return null;
+        }
+
+        JsonElement.ArrayEnumerator arrayEnumerator = jsonDocument.RootElement.EnumerateArray();
+        arrayEnumerator.MoveNext();
+
+        return new Product
+        {
+            Gtin = gtin,
+            Name = arrayEnumerator.Current.GetProperty("name").GetString()!,
+            ImageUrl = $"{_grocyConfiguration.Value.BaseUrl}/api/files/productpictures/{Base64Encode(arrayEnumerator.Current.GetProperty("picture_file_name").GetString()!)}"
+        };
+    }
+
     public async Task<bool> UpsertProduct(Product product, int amount, DateOnly? bestBefore, double? price)
     {
         _logger.LogInformation("Adding product with date {Date} and Price {Price}", bestBefore, price);
