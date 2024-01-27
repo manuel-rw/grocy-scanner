@@ -21,6 +21,7 @@ builder.Services.AddServerSideBlazor();
 builder.Services.AddSingleton<IGtinValidator, GtinValidator>();
 builder.Services.AddSingleton<IProductProvider, OpenFoodFactsProductProvider>();
 builder.Services.AddSingleton<IProductProvider, CoopProductProvider>();
+builder.Services.AddSingleton<IProductProvider, MigrosProductProvider>();
 builder.Services.AddSingleton<IGrocyClient, GrocyClient>();
 builder.Services.AddSingleton<IGrocyQuantityUnit, GrocyQuantityUnitsMasterData>();
 builder.Services.AddSingleton<IGrocyLocations, GrocyLocationMasterData>();
