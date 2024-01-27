@@ -17,6 +17,7 @@ It's automatic algorithm analyzes the data and chooses the data with the highest
 
 ![](./Documentation/screenshot-scanner.png)
 ![](./Documentation/screenshot-purchase-product.png)
+![](./Documentation/screenshot-qrcode-scanner.png)
 
 ## Installation
 ### Docker Compose
