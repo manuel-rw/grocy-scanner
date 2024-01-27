@@ -11,8 +11,8 @@ public class BestProductValueCalculator : IBestValueCalculator
         _valueCalculator = valueCalculator;
     }
 
-    public Product GetProductWithMostValue(IEnumerable<Product> products)
+    public Product? GetProductWithMostValue(IEnumerable<Product> products)
     {
-        return products.OrderByDescending(product => _valueCalculator.CalculateValue(product)).First();
+        return products.MaxBy(product => _valueCalculator.CalculateValue(product));
     }
 }
