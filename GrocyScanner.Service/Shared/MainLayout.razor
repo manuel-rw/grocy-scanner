@@ -1,4 +1,5 @@
 ﻿@using Blazored.LocalStorage
+@using GrocyScanner.Service.Shared.Components
 @inherits LayoutComponentBase
 @inject ILocalStorageService LocalStorageService
 
@@ -23,6 +24,7 @@
     </MudDrawer>
     <MudMainContent>
         <div class="position-relative px-3 py-2 mx-auto h-100" style="max-width: 900px;">
+            <Warnings />
             @Body
         </div>
     </MudMainContent>

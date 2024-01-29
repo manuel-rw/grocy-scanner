@@ -1,0 +1,29 @@
+@using Microsoft.Extensions.Options
+@using GrocyScanner.Core.Configurations
+@inject IOptions<GrocyConfiguration> GrocyConfiguration
+
+
+<MudStack Spacing="2" Class="mb-4">
+    @foreach (string message in GetMessages())
+    {
+        <MudAlert Severity="Severity.Error">@message</MudAlert>
+    }
+</MudStack>
+
+
+@code {
+
+    private IEnumerable<string> GetMessages()
+    {
+        if (string.IsNullOrEmpty(GrocyConfiguration.Value.ApiKey))
+        {
+            yield return "Grocy API token is not set. Please update your configuration";
+        }
+
+        if (string.IsNullOrEmpty(GrocyConfiguration.Value.BaseUrl))
+        {
+            yield return "Grocy base URL is not set. Please update your configuration";
+        }
+    }
+
+}
