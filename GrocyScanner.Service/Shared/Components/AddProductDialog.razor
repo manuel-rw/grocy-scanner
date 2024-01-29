@@ -6,6 +6,7 @@
 @inject IEnumerable<IProductProvider> ProductProviders
 @inject IGrocyClient GrocyClient
 @inject IBestValueCalculator BestValueCalculator
+@inject ISnackbar Snackbar
 
 <MudDialog>
     <DialogContent>
@@ -135,6 +136,7 @@
 
         DateOnly? bestBeforeDate = FormBestBefore.HasValue ? DateOnly.FromDateTime(FormBestBefore.Value) : null;
         await GrocyClient.UpsertProduct(Product, FormAmount, bestBeforeDate, FormPrice);
+        Snackbar.Add($"Added \"{Product.Name}\" to Grocy", Severity.Success);
         MudDialog.Close(DialogResult.Ok(true));
     }
 
