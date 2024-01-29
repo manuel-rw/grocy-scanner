@@ -35,7 +35,7 @@
             Variant="Variant.Filled"
             Required="true"
             RequiredError="'Barcode is required'"
-            TextChanged="OnInternalValueChanged">
+            OnKeyDown="OnKeyDown">
         </MudTextField>
     </div>
 
@@ -115,16 +115,6 @@
         CurrentSelectedCamera = cameraNotification;
     }
 
-    private async Task OnInternalValueChanged()
-    {
-        if (!GtinValidator.Validate(Barcode))
-        {
-            return;
-        }
-
-        await OpenDialog(Barcode);
-    }
-
     private async Task OpenDialog(string barcode)
     {
         var parameters = new DialogParameters<AddProductDialog> { { nameof(AddProductDialog.Barcode), barcode } };
@@ -138,4 +128,20 @@
 
         await barcodeInputTextRef.FocusAsync();
     }
+
+    private async Task OnKeyDown(KeyboardEventArgs keyboardEventArgs)
+    {
+        if (!keyboardEventArgs.Key.Equals("Enter", StringComparison.Ordinal))
+        {
+            return;
+        }
+        
+        if (!GtinValidator.Validate(Barcode))
+        {
+            return;
+        }
+
+        await OpenDialog(Barcode);
+    }
+
 }
