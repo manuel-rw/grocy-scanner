@@ -70,3 +70,7 @@ a, .btn-link {
 html, html body, html body .mud-layout .mud-main-content {
     height: 100%;
 }
+
+.theme-light h4, .theme-light span {
+    color: var(--bs-gray-200);
+}

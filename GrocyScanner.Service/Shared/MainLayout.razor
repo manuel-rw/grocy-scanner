@@ -22,7 +22,7 @@
             <MudNavLink Icon="@Icons.Material.Filled.Settings" Href="/settings" Match="NavLinkMatch.All">Settings</MudNavLink>
         </MudNavMenu>
     </MudDrawer>
-    <MudMainContent>
+    <MudMainContent Class="@(_isDarkTheme ? "theme-dark" : "theme-light")">
         <div class="position-relative px-3 py-2 mx-auto h-100" style="max-width: 900px;">
             <Warnings />
             @Body
