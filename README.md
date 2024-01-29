@@ -55,6 +55,15 @@ Application will start on http://your-hostname:7575
 - (Optional): Set up ingress
 - Scroll to the bottom and click "Install"
 
+## Using a physical Scanner
+You can use any generic USB, wireless or 2.4Ghz 1D/2D barcode scanner. These act like a keyboard.
+Hence you can use them on any device that has a browser and keyboard support. Most Android phones and tablets have support for physical keyboards.
+If you have a wired scanner, you can buy an OTC adapter (micro USB / USB C to USB A) to connect your scanner via USB.
+For wireless scanners you have to connect via Bluetooth.
+
+It's also recommended to disable virtual / physical keyboard on the Android device:
+![](./Documentation/android.settings.jpg)
+
 ## Notes
 - Retailers can rate limit or drop your request depending on your country and amount of requests.
 Please ensure fair usage of these resources. Grocy Scanner already tries to minimize requests as much as possible.
