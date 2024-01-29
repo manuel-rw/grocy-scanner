@@ -6,7 +6,7 @@
 @inject IGtinValidator GtinValidator
 @using Microsoft.AspNetCore.SignalR.Client
 @inject NavigationManager NavigationManager
-@inject IJSRuntime JS
+@inject IJSRuntime Js
 @inject IDialogService DialogService
 
 <PageTitle>Scanner • Grocy Scanner</PageTitle>
@@ -27,6 +27,7 @@
     </MudStack>
     <div>
         <MudTextField
+            @ref="barcodeInputTextRef"
             @bind-Value="Barcode"
             T="string"
             Margin="Margin.Dense"
@@ -80,6 +81,8 @@
     private CameraNotification? CurrentSelectedCamera { get; set; }
     private string Barcode { get; set; } = string.Empty;
 
+    private MudTextField<string> barcodeInputTextRef;
+
     protected override async Task OnInitializedAsync()
     {
         HubConnection hubConnection = new HubConnectionBuilder()
@@ -103,12 +106,12 @@
 
     private async Task OnRefreshAvailableCameras()
     {
-        await JS.InvokeVoidAsync("updateAvailableCameras");
+        await Js.InvokeVoidAsync("updateAvailableCameras");
     }
 
     private async Task OnSelectedCameraChanged(CameraNotification cameraNotification)
     {
-        await JS.InvokeVoidAsync("startScanningWithCamera", cameraNotification.Id);
+        await Js.InvokeVoidAsync("startScanningWithCamera", cameraNotification.Id);
         CurrentSelectedCamera = cameraNotification;
     }
 
@@ -125,6 +128,7 @@
     private async Task OpenDialog(string barcode)
     {
         var parameters = new DialogParameters<AddProductDialog> { { nameof(AddProductDialog.Barcode), barcode } };
+        Barcode = string.Empty;
         await DialogService.ShowAsync<AddProductDialog>("Purchase Product", parameters, new DialogOptions
         {
             CloseOnEscapeKey = false,
@@ -132,7 +136,6 @@
             CloseButton = false
         });
 
-        Barcode = string.Empty;
+        await barcodeInputTextRef.FocusAsync();
     }
-
 }
