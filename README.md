@@ -26,6 +26,10 @@ It's automatic algorithm analyzes the data and chooses the data with the highest
 - https://ch.openfoodfacts.org/
 
 ## Installation
+> [!WARNING]  
+> The application requires at least one location and quantity unit to be configured.
+> Without these the application will throw an error and not work.
+
 ### Docker Compose
 ```yaml
 version: '3'
