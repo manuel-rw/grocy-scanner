@@ -128,7 +128,7 @@
 
     private async Task OpenDialog(string barcode)
     {
-        var parameters = new DialogParameters<AddProductDialog> { { nameof(AddProductDialog.Barcode), barcode } };
+        DialogParameters<AddProductDialog>? parameters = new DialogParameters<AddProductDialog> { { nameof(AddProductDialog.Barcode), barcode } };
         Barcode = string.Empty;
         IDialogReference dialogReference = await DialogService.ShowAsync<AddProductDialog>("Purchase Product", parameters, new DialogOptions
         {

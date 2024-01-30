@@ -87,7 +87,7 @@ public class MigrosProductProvider : IProductProvider
         using HttpRequestMessage httpRequestMessage = new(HttpMethod.Get, "https://www.migros.ch/authentication/public/v1/api/guest?authorizationNotRequired=true");
         HttpResponseMessage httpResponseMessage = await httpClient.SendAsync(httpRequestMessage);
         httpResponseMessage.EnsureSuccessStatusCode();
-        var values = httpResponseMessage.Headers.GetValues("leshopch");
+        IEnumerable<string>? values = httpResponseMessage.Headers.GetValues("leshopch");
         string authorizationToken = values.First();
         _authorizationHeader = authorizationToken;
         return authorizationToken;

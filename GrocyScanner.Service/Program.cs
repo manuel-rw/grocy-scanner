@@ -25,6 +25,7 @@ builder.Services.AddSingleton<IProductProvider, MigrosProductProvider>();
 builder.Services.AddSingleton<IGrocyClient, GrocyClient>();
 builder.Services.AddSingleton<IGrocyQuantityUnit, GrocyQuantityUnitsMasterData>();
 builder.Services.AddSingleton<IGrocyLocations, GrocyLocationMasterData>();
+builder.Services.AddSingleton<IProductStock, GrocyProductStock>();
 builder.Services.AddSignalR();
 builder.Services.AddScoped<QrCodeScanHub>();
 

@@ -15,16 +15,18 @@ public class GrocyClient : IGrocyClient
     private readonly IOptions<GrocyConfiguration> _grocyConfiguration;
     private readonly IGrocyQuantityUnit _grocyQuantityUnit;
     private readonly IGrocyLocations _grocyLocations;
+    private readonly IProductStock _productStock;
 
     public GrocyClient(IHttpClientFactory httpClientFactory, ILogger<GrocyClient> logger,
         IOptions<GrocyConfiguration> grocyConfiguration, IGrocyQuantityUnit grocyQuantityUnit,
-        IGrocyLocations grocyLocations)
+        IGrocyLocations grocyLocations, IProductStock productStock)
     {
         _httpClientFactory = httpClientFactory;
         _logger = logger;
         _grocyConfiguration = grocyConfiguration;
         _grocyQuantityUnit = grocyQuantityUnit;
         _grocyLocations = grocyLocations;
+        _productStock = productStock;
     }
 
     public async Task<int?> GetProductIdByBarcode(string gtin)
@@ -43,7 +45,7 @@ public class GrocyClient : IGrocyClient
         }
 
         string content = await response.Content.ReadAsStringAsync();
-        var productBarcodes = JsonSerializer.Deserialize<IEnumerable<GrocyProductBarcode>>(content)!;
+        IEnumerable<GrocyProductBarcode>? productBarcodes = JsonSerializer.Deserialize<IEnumerable<GrocyProductBarcode>>(content)!;
         return productBarcodes.SingleOrDefault(productBarcode => productBarcode.Barcode.Equals(gtin))?.ProductId;
     }
 
@@ -95,7 +97,7 @@ public class GrocyClient : IGrocyClient
         int? existingGrocyProductId = await GetProductIdByBarcode(product.Gtin);
         if (existingGrocyProductId.HasValue)
         {
-            await AddProductToStock(existingGrocyProductId.Value, amount, defaultLocationId, bestBefore, price);
+            await _productStock.AddProductToStockAsync(existingGrocyProductId.Value, amount, defaultLocationId, bestBefore, price);
             return true;
         }
 
@@ -111,32 +113,8 @@ public class GrocyClient : IGrocyClient
             Barcode = product.Gtin,
             ProductId = productId.Value
         });
-        await AddProductToStock(productId.Value, amount, defaultLocationId, bestBefore, price);
+        await _productStock.AddProductToStockAsync(productId.Value, amount, defaultLocationId, bestBefore, price);
         return true;
-    }
-
-    public async Task AddProductToStock(int productId, int amount, long locationId, DateOnly? bestBefore, double? price)
-    {
-        if (amount <= 0)
-        {
-            throw new ArgumentException("Amount cannot be negative", nameof(amount));
-        }
-
-        // this is Grocy's way of "no due date". Inserting null sadly displays "today" as the due date
-        DateOnly bestBeforeOrDefault = bestBefore ?? new DateOnly(2999, 12, 31);
-
-        HttpClient httpClient = _httpClientFactory.CreateClient();
-        HttpRequestMessage httpRequestMessage = new(HttpMethod.Post,
-            $"{_grocyConfiguration.Value.BaseUrl}/api/stock/products/{productId}/add");
-        httpRequestMessage.Headers.Add("GROCY-API-KEY", _grocyConfiguration.Value.ApiKey);
-        httpRequestMessage.Headers.Add("accept", "application/json");
-        string json = 
-            $@"{{""amount"": {amount},""best_before_date"":""{bestBeforeOrDefault:yyyy-MM-dd}"",""price"":""{price:N}"",""note"":"""",""location_id"":""{locationId}""}}";
-        httpRequestMessage.Content = new StringContent(json);
-        httpRequestMessage.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-        await httpClient.SendAsync(httpRequestMessage);
-        _logger.LogInformation("Added {ProductId} to stock with price {Price} and date {BestBeforeDate}, {Json}",
-            productId, price, bestBefore, json);
     }
 
     private async Task<int?> CreateProductAsync(Product product, long locationId, long quantityUnitId)
