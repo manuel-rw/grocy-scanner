@@ -6,6 +6,9 @@ public class GrocyProduct
 {
     [JsonPropertyName("name")]
     public required string Name { get; set; }
+    
+    [JsonPropertyName("description")]
+    public required string Description { get; set; }
 
     [JsonPropertyName("location_id")]
     public string? LocationId { get; set; }
@@ -30,6 +33,12 @@ public class GrocyProduct
 
     [JsonPropertyName("default_best_before_days_after_open")]
     public string? DefaultBestBeforeDaysAfterOpen { get; set; }
+    
+    [JsonPropertyName("default_best_before_days_after_freezing")]
+    public string? DefaultBestBeforeDaysAfterFreezing { get; set; }
+    
+    [JsonPropertyName("default_best_before_days_after_thawing")]
+    public string? DefaultBestBeforeDaysAfterThawing { get; set; }
 
     [JsonPropertyName("enable_tare_weight_handling")]
     public string? EnableTareWeightHandling { get; set; }
@@ -45,4 +54,13 @@ public class GrocyProduct
 
     [JsonPropertyName("move_on_open")]
     public required string MoveOnOpen { get; set; }
+    
+    [JsonPropertyName("shopping_location_id")]
+    public required string ShoppingLocationId { get; set; }
+    
+    [JsonPropertyName("tare_weight")]
+    public required string TareWeight { get; set; }
+    
+    [JsonPropertyName("calories")]
+    public required string Calories { get; set; }
 }

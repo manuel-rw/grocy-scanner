@@ -10,5 +10,5 @@ public interface IGrocyClient
 
     public Task<bool> UpsertProduct(Product product, int amount, DateOnly? bestBefore, double? price);
 
-    public Task AddProductToStock(int productId, int amount, DateOnly? bestBefore, double? price);
+    public Task AddProductToStock(int productId, int amount, long locationId, DateOnly? bestBefore, double? price);
 }

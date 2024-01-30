@@ -83,15 +83,23 @@ public class GrocyClient : IGrocyClient
 
     public async Task<bool> UpsertProduct(Product product, int amount, DateOnly? bestBefore, double? price)
     {
+        _logger.LogInformation("Obtaining locations and quantity units");
+        IReadOnlyList<GrocyLocation> location = await _grocyLocations.GetLocationsAsync();
+        IReadOnlyList<GrocyQuantityUnit> quantityUnits = await _grocyQuantityUnit.GetQuantityUnits();
+
+        long defaultLocationId = location.First().Id;
+        long defaultQuantityUnitId = quantityUnits.First().Id;
+        
+        _logger.LogInformation("Location for product will be {LocationId} and quantity unit will be {QuanityUnitId}", defaultLocationId, defaultQuantityUnitId);
         _logger.LogInformation("Adding product with date {Date} and Price {Price}", bestBefore, price);
         int? existingGrocyProductId = await GetProductIdByBarcode(product.Gtin);
         if (existingGrocyProductId.HasValue)
         {
-            await AddProductToStock(existingGrocyProductId.Value, amount, bestBefore, price);
+            await AddProductToStock(existingGrocyProductId.Value, amount, defaultLocationId, bestBefore, price);
             return true;
         }
 
-        int? productId = await CreateProductAsync(product);
+        int? productId = await CreateProductAsync(product, defaultLocationId, defaultQuantityUnitId);
 
         if (!productId.HasValue)
         {
@@ -103,11 +111,11 @@ public class GrocyClient : IGrocyClient
             Barcode = product.Gtin,
             ProductId = productId.Value
         });
-        await AddProductToStock(productId.Value, amount, bestBefore, price);
+        await AddProductToStock(productId.Value, amount, defaultLocationId, bestBefore, price);
         return true;
     }
 
-    public async Task AddProductToStock(int productId, int amount, DateOnly? bestBefore, double? price)
+    public async Task AddProductToStock(int productId, int amount, long locationId, DateOnly? bestBefore, double? price)
     {
         if (amount <= 0)
         {
@@ -123,7 +131,7 @@ public class GrocyClient : IGrocyClient
         httpRequestMessage.Headers.Add("GROCY-API-KEY", _grocyConfiguration.Value.ApiKey);
         httpRequestMessage.Headers.Add("accept", "application/json");
         string json = 
-            $@"{{""amount"": {amount},""best_before_date"":""{bestBeforeOrDefault:yyyy-MM-dd}"",""price"":""{price:N}""}}";
+            $@"{{""amount"": {amount},""best_before_date"":""{bestBeforeOrDefault:yyyy-MM-dd}"",""price"":""{price:N}"",""note"":"""",""location_id"":""{locationId}""}}";
         httpRequestMessage.Content = new StringContent(json);
         httpRequestMessage.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
         await httpClient.SendAsync(httpRequestMessage);
@@ -131,11 +139,8 @@ public class GrocyClient : IGrocyClient
             productId, price, bestBefore, json);
     }
 
-    private async Task<int?> CreateProductAsync(Product product)
+    private async Task<int?> CreateProductAsync(Product product, long locationId, long quantityUnitId)
     {
-        var location = await _grocyLocations.GetLocationsAsync();
-        var quantityUnits = await _grocyQuantityUnit.GetQuantityUnits();
-
         string? pictureFileName = null;
         if (!string.IsNullOrEmpty(product.ImageUrl))
         {
@@ -147,11 +152,23 @@ public class GrocyClient : IGrocyClient
         {
             Name = product.Name,
             ShouldNotBeFrozen = "1",
-            MoveOnOpen = "1",
-            LocationId = $"{location.First().Id}",
-            QuIdPurchase = $"{quantityUnits.First().Id}",
-            QuIdStock = $"{quantityUnits.First().Id}",
-            PictureFileName = pictureFileName
+            MoveOnOpen = "0",
+            LocationId = $"{locationId}",
+            QuIdPurchase = $"{quantityUnitId}",
+            QuIdStock = $"{quantityUnitId}",
+            PictureFileName = pictureFileName,
+            DefaultConsumeLocationId = "0",
+            Description = $"Added by grocy-scanner at {DateTime.Now.ToShortDateString()}",
+            MinStockAmount = "0",
+            DefaultBestBeforeDays = "0",
+            ShoppingLocationId = string.Empty,
+            DefaultBestBeforeDaysAfterOpen = "0",
+            DefaultBestBeforeDaysAfterFreezing = "0",
+            DefaultBestBeforeDaysAfterThawing = "0",
+            EnableTareWeightHandling = "0",
+            TareWeight = "0.0",
+            NotCheckStockFulfillmentForRecipes = "0",
+            Calories = "0"
         };
 
         string requestJson = JsonSerializer.Serialize(grocyProduct);
