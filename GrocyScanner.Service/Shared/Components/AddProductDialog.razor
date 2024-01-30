@@ -115,7 +115,7 @@
         // product is not known, must be searched in the providers
         if (productFromGrocy == null)
         {
-            Product?[]? products = await Task.WhenAll(ProductProviders.Select(async provider => await provider.GetProductByGtin(Barcode)));
+            Product?[] products = await Task.WhenAll(ProductProviders.Select(async provider => await provider.GetProductByGtin(Barcode)));
             Product = BestValueCalculator.GetProductWithMostValue(products.Where(product => product != null).Cast<Product>().ToList());
         }
         else

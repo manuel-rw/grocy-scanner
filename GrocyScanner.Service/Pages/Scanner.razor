@@ -5,9 +5,13 @@
 @using GrocyScanner.Service.Shared.Components
 @inject IGtinValidator GtinValidator
 @using Microsoft.AspNetCore.SignalR.Client
+@using GrocyScanner.Core.GrocyClient
 @inject NavigationManager NavigationManager
 @inject IJSRuntime Js
 @inject IDialogService DialogService
+@inject ISnackbar Snackbar
+@inject IGrocyClient GrocyClient
+@inject IProductStock ProductStock
 
 <PageTitle>Scanner • Grocy Scanner</PageTitle>
 
@@ -41,7 +45,7 @@
 
     <div class="bg-dark rounded overflow-hidden flex-grow-1 w-100" id="reader" style="height: 400px;">
         <div class="position-absolute top-50 start-50 translate-middle d-flex flex-column align-items-center">
-            <img class="mb-5" width="120" height="auto" src="undraw_gone_shopping_re_2lau.svg" alt="shopping image" />
+            <img class="mb-5" width="120" height="auto" src="undraw_gone_shopping_re_2lau.svg" alt="shopping image"/>
             <h4>Ready to scan</h4>
             <span class="text-center">You can manually enter a EAN code at the top, connect a USB / Bluetooth barcode scanner or scan for a connected camera.</span>
         </div>
@@ -92,7 +96,7 @@
 
         hubConnection.On<string>("BarcodeScanned", async barcode =>
         {
-            await InvokeAsync(async () => await OpenDialog(barcode));
+            await InvokeAsync(async () => await OpenPurchaseDialogAsync(barcode));
             await InvokeAsync(StateHasChanged);
         });
 
@@ -118,17 +122,50 @@
 
     private async Task OnInternalValueChanged()
     {
-        if (!GtinValidator.Validate(Barcode))
+        if (string.IsNullOrEmpty(Barcode ) || !GtinValidator.Validate(Barcode))
         {
             return;
         }
 
-        await OpenDialog(Barcode);
+        switch (ScannerMode)
+        {
+            case ScannerMode.Purchase:
+                await OpenPurchaseDialogAsync(Barcode);
+                break;
+            case ScannerMode.Consume:
+            case ScannerMode.ConsumeSpoiled:
+                int? productId = await GrocyClient.GetProductIdByBarcode(Barcode);
+
+                if (!productId.HasValue)
+                {
+                    Snackbar.Add("Product not in Grocy", Severity.Error);
+                    await barcodeInputTextRef.FocusAsync();
+                    return;
+                }
+
+                GrocyErrorMessage? grocyErrorMessage = await ProductStock.ConsumeProductAsync(productId.Value, 1, ScannerMode == ScannerMode.ConsumeSpoiled);
+                if (grocyErrorMessage == null)
+                {
+                    Snackbar.Add("Consumed one stock item");
+                }
+                else
+                {
+                    Snackbar.Add(grocyErrorMessage.ErrorMessage, Severity.Error);
+                }
+                await barcodeInputTextRef.FocusAsync();
+                Barcode = string.Empty;
+                await barcodeInputTextRef.Clear();
+                break;
+            default:
+                Snackbar.Add("Unable to process scan mode", Severity.Error);
+                Barcode = string.Empty;
+                break;
+        }
     }
 
-    private async Task OpenDialog(string barcode)
+    private async Task OpenPurchaseDialogAsync(string barcode)
     {
-        DialogParameters<AddProductDialog>? parameters = new DialogParameters<AddProductDialog> { { nameof(AddProductDialog.Barcode), barcode } };
+        DialogParameters<AddProductDialog> parameters = new() { { nameof(AddProductDialog.Barcode), barcode } };
         Barcode = string.Empty;
         IDialogReference dialogReference = await DialogService.ShowAsync<AddProductDialog>("Purchase Product", parameters, new DialogOptions
         {
@@ -139,4 +176,5 @@
         await dialogReference.Result;
         await barcodeInputTextRef.FocusAsync();
     }
+
 }

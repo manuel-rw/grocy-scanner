@@ -1,5 +1,7 @@
 using System.Net.Http.Headers;
+using System.Text.Json;
 using GrocyScanner.Core.Configurations;
+using GrocyScanner.Core.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -44,7 +46,7 @@ public class GrocyProductStock : IProductStock
             productId, price, bestBefore, json);
     }
 
-    public async Task ConsumeProduct(int productId, int amount, bool spoiled)
+    public async Task<GrocyErrorMessage?> ConsumeProductAsync(int productId, int amount, bool spoiled)
     {
         if (amount < 1)
         {
@@ -61,6 +63,17 @@ public class GrocyProductStock : IProductStock
         httpRequestMessage.Content = new StringContent(json);
         httpRequestMessage.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
         HttpResponseMessage httpResponseMessage = await httpClient.SendAsync(httpRequestMessage);
-        httpResponseMessage.EnsureSuccessStatusCode();
+
+        try
+        {
+            httpResponseMessage.EnsureSuccessStatusCode();
+            return null;
+        }
+        catch (HttpRequestException httpRequestException)
+        {
+            string responseJson = await httpResponseMessage.Content.ReadAsStringAsync();
+            _logger.LogError(httpRequestException, "Unable to consume product {ProductId}: {Json}", productId, responseJson);
+            return JsonSerializer.Deserialize<GrocyErrorMessage>(responseJson);
+        }
     }
 }
