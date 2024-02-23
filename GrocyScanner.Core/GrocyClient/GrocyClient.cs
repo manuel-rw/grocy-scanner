@@ -74,12 +74,11 @@ public class GrocyClient : IGrocyClient
 
         JsonElement.ArrayEnumerator arrayEnumerator = jsonDocument.RootElement.EnumerateArray();
         arrayEnumerator.MoveNext();
-
         return new Product
         {
             Gtin = gtin,
             Name = arrayEnumerator.Current.GetProperty("name").GetString()!,
-            ImageUrl = $"{_grocyConfiguration.Value.BaseUrl}/api/files/productpictures/{Base64Encode(arrayEnumerator.Current.GetProperty("picture_file_name").GetString()!)}"
+            ImageUrl = $"{_grocyConfiguration.Value.BaseUrl}/api/files/productpictures/{Base64Encode(arrayEnumerator.Current.GetProperty("picture_file_name").GetString() ?? string.Empty)}"
         };
     }
 
