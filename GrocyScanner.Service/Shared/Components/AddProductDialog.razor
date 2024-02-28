@@ -12,21 +12,18 @@
     <DialogContent>
         @if (Product != null)
         {
-            <MudCard Outlined="true">
-                @if (!string.IsNullOrEmpty(Product.ImageUrl))
-                {
-                    <div class="py-2 d-flex align-items-center justify-content-center">
-                        <img class="rounded" src="@Product.ImageUrl" height="150" alt="product image"/>
-                    </div>
-                }
-
+            <MudCard Outlined="true" Class="d-sm-flex flex-sm-start flex-sm-wrap d-lg-block">
                 <MudCardContent>
+                    @if (!string.IsNullOrEmpty(Product.ImageUrl))
+                    {
+                        <MudCardMedia Class="rounded" Image=@Product.ImageUrl Height="150"/>
+                    }
                     <MudText Typo="Typo.h5" Class="fw-bold">@Product.Gtin</MudText>
                     <MudText Typo="Typo.h4" Class="fw-bold">@Product.Name.Humanize()</MudText>
-
+                </MudCardContent>
+                <MudForm Class="m-3">
                     <MudDatePicker
                         Variant="Variant.Filled"
-                        Class="mt-4"
                         Label="Best before (optional)"
                         @bind-Date="FormBestBefore"
                         Margin="Margin.Dense"
@@ -39,7 +36,8 @@
                         Margin="Margin.Dense"
                         Variant="Variant.Filled"
                         Min="0.0"
-                        Max="int.MaxValue"/>
+                        Max="int.MaxValue"
+                        />
                     <MudNumericField
                         @bind-Value="FormAmount"
                         Format="N0"
@@ -47,9 +45,11 @@
                         Margin="Margin.Dense"
                         Variant="Variant.Filled"
                         Min="1"
-                        Max="999"/>
-                </MudCardContent>
+                        Max="999"
+                    />
+                    </MudForm>
             </MudCard>
+
         }
         @if (IsLoading)
         {
@@ -67,8 +67,7 @@
                 </MudCardContent>
             </MudCard>
         }
-        
-        <p>Requested at @ProductProviders.Count() providers</p>
+        <MudText>Requested at @ProductProviders.Count() providers</MudText>
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">Cancel</MudButton>
