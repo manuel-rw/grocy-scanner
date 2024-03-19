@@ -23,7 +23,8 @@
             @bind-Value="ScannerMode"
             Color="Color.Primary"
             CheckMark
-            FixedContent>
+            FixedContent
+            @onclick="() => barcodeInputTextRef.FocusAsync()">
             <MudToggleItem SelectedIcon="@Icons.Material.Filled.ShoppingCart" Value="@ScannerMode.Purchase" Text="Purchase"/>
             <MudToggleItem SelectedIcon="@Icons.Material.Filled.Restaurant" Value="@ScannerMode.Consume" Text="Consume"/>
             <MudToggleItem SelectedIcon="@Icons.Material.Filled.AutoDelete" Value="@ScannerMode.ConsumeSpoiled" Text="Consume (spoiled)"/>
@@ -39,7 +40,8 @@
             Variant="Variant.Filled"
             Required="true"
             RequiredError="'Barcode is required'"
-            TextChanged="OnInternalValueChanged">
+            TextChanged="OnInternalValueChanged"
+            AutoFocus="true">
         </MudTextField>
     </div>
 
@@ -171,7 +173,8 @@
         {
             CloseOnEscapeKey = false,
             DisableBackdropClick = true,
-            CloseButton = false
+            CloseButton = false,
+            MaxWidth = MaxWidth.Large
         });
         await dialogReference.Result;
         await barcodeInputTextRef.FocusAsync();

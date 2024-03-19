@@ -22,16 +22,6 @@
                     <MudText Typo="Typo.h4" Class="fw-bold">@Product.Name.Humanize()</MudText>
                 </MudCardContent>
                 <MudForm Class="m-3">
-                    @if(Product.Name == "Unknown"){
-                        <MudTextField T="string"
-                            @bind-Value="FormProductName"
-                        Margin="Margin.Dense"
-                        Variant="Variant.Filled"
-                        Required="true"
-                        Label="Product name"
-                        RequiredError="Enter product name"
-                        />
-                    }
                     <MudDatePicker
                         Variant="Variant.Filled"
                         Label="Best before (optional)"
@@ -39,6 +29,16 @@
                         Margin="Margin.Dense"
                         MinDate="DateTime.Today"
                         DateFormat="dd.MM.yyyy"/>
+                    @if (Product.Name == "Unknown")
+                    {
+                        <MudTextField T="string"
+                                      @bind-Value="FormProductName"
+                                      Margin="Margin.Dense"
+                                      Variant="Variant.Filled"
+                                      Required="true"
+                                      Label="Product name"
+                                      RequiredError="Enter product name"/>
+                    }
                     <MudNumericField
                         @bind-Value="FormPrice"
                         Format="N2"
@@ -57,7 +57,6 @@
                         Max="999"/>
                 </MudForm>
             </MudCard>
-
         }
         @if (IsLoading)
         {
