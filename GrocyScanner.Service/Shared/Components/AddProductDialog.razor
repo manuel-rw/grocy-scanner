@@ -29,6 +29,16 @@
                         Margin="Margin.Dense"
                         MinDate="DateTime.Today"
                         DateFormat="dd.MM.yyyy"/>
+                    @if (Product.Name == UnknownFlag)
+                    {
+                        <MudTextField T="string"
+                                      @bind-Value="FormProductName"
+                                      Margin="Margin.Dense"
+                                      Variant="Variant.Filled"
+                                      Required="true"
+                                      Label="Product name"
+                                      RequiredError="Enter product name"/>
+                    }
                     <MudNumericField
                         @bind-Value="FormPrice"
                         Format="N2"
@@ -36,8 +46,7 @@
                         Margin="Margin.Dense"
                         Variant="Variant.Filled"
                         Min="0.0"
-                        Max="int.MaxValue"
-                        />
+                        Max="int.MaxValue"/>
                     <MudNumericField
                         @bind-Value="FormAmount"
                         Format="N0"
@@ -45,11 +54,9 @@
                         Margin="Margin.Dense"
                         Variant="Variant.Filled"
                         Min="1"
-                        Max="999"
-                    />
-                    </MudForm>
+                        Max="999"/>
+                </MudForm>
             </MudCard>
-
         }
         @if (IsLoading)
         {
@@ -75,7 +82,7 @@
             OnClick="OnClickPurchase"
             Variant="Variant.Filled"
             Color="Color.Primary"
-            Disabled="IsLoading || Product == null">
+            Disabled= "@( IsLoading || Product == null || string.IsNullOrWhiteSpace(FormProductName))">
             Purchase
         </MudButton>
     </DialogActions>
@@ -99,6 +106,10 @@
     private DateTime? FormBestBefore { get; set; }
     private double FormPrice { get; set; }
     private int FormAmount { get; set; } = 1;
+    private string? FormProductName { get; set; }
+
+    //Hack to mark a product as "unknown"
+    const string UnknownFlag = "114DFDA3-2582-4CB8-8D4C-158D81D68E5C";
 
     private void Cancel()
     {
@@ -116,6 +127,10 @@
         {
             Product?[] products = await Task.WhenAll(ProductProviders.Select(async provider => await provider.GetProductByGtin(Barcode)));
             Product = BestValueCalculator.GetProductWithMostValue(products.Where(product => product != null).Cast<Product>().ToList());
+            if (Product == null)
+            {
+                Product = new Product {Name = UnknownFlag, Gtin = Barcode };
+            }
         }
         else
         {
@@ -128,11 +143,11 @@
 
     private async Task OnClickPurchase()
     {
-        if (Product == null)
+        if (Product == null || string.IsNullOrEmpty(FormProductName))
         {
             return;
         }
-
+        Product.Name = FormProductName;
         DateOnly? bestBeforeDate = FormBestBefore.HasValue ? DateOnly.FromDateTime(FormBestBefore.Value) : null;
         await GrocyClient.UpsertProduct(Product, FormAmount, bestBeforeDate, FormPrice);
         Snackbar.Add($"Added \"{Product.Name}\" to Grocy", Severity.Success);
