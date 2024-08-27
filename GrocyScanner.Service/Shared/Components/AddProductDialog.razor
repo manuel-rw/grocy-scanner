@@ -124,7 +124,11 @@
         {
             Product?[] products = await Task.WhenAll(ProductProviders.Select(async provider => await provider.GetProductByGtin(Barcode)));
             Product = BestValueCalculator.GetProductWithMostValue(products.Where(product => product != null).Cast<Product>().ToList());
-            if (Product == null)
+            if (Product != null)
+            {
+                FormProductName = Product.Name;
+            }
+            else
             {
                 Product = new Product {Name = "Unknown", Gtin = Barcode };
             }
