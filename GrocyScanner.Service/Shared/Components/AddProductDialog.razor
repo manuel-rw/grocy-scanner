@@ -19,7 +19,7 @@
                         <MudCardMedia Class="rounded" Image=@Product.ImageUrl Height="150"/>
                     }
                     <MudText Typo="Typo.h5" Class="fw-bold">@Product.Gtin</MudText>
-                    <MudText Typo="Typo.h4" Class="fw-bold">@Product.Name.Humanize()</MudText>
+                    <MudText Typo="Typo.h4" Class="fw-bold">@(Product.Name == UnknownFlag ? "Unknown" : Product.Name.Humanize())</MudText>
                 </MudCardContent>
                 <MudForm Class="m-3">
                     <MudDatePicker
@@ -127,7 +127,11 @@
         {
             Product?[] products = await Task.WhenAll(ProductProviders.Select(async provider => await provider.GetProductByGtin(Barcode)));
             Product = BestValueCalculator.GetProductWithMostValue(products.Where(product => product != null).Cast<Product>().ToList());
-            if (Product == null)
+            if (Product != null)
+            {
+                FormProductName = Product.Name;
+            }
+            else
             {
                 Product = new Product {Name = UnknownFlag, Gtin = Barcode };
             }
