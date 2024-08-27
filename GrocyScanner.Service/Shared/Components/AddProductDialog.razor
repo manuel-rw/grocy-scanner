@@ -19,7 +19,7 @@
                         <MudCardMedia Class="rounded" Image=@Product.ImageUrl Height="150"/>
                     }
                     <MudText Typo="Typo.h5" Class="fw-bold">@Product.Gtin</MudText>
-                    <MudText Typo="Typo.h4" Class="fw-bold">@Product.Name.Humanize()</MudText>
+                    <MudText Typo="Typo.h4" Class="fw-bold">@(Product.Name == UnknownFlag ? "Unknown" : Product.Name.Humanize())</MudText>
                 </MudCardContent>
                 <MudForm Class="m-3">
                     <MudDatePicker
@@ -29,7 +29,7 @@
                         Margin="Margin.Dense"
                         MinDate="DateTime.Today"
                         DateFormat="dd.MM.yyyy"/>
-                    @if (Product.Name == "Unknown")
+                    @if (Product.Name == UnknownFlag)
                     {
                         <MudTextField T="string"
                                       @bind-Value="FormProductName"
@@ -82,7 +82,7 @@
             OnClick="OnClickPurchase"
             Variant="Variant.Filled"
             Color="Color.Primary"
-            Disabled= "@( IsLoading || (Product == null) || string.IsNullOrWhiteSpace(FormProductName))">
+            Disabled= "@( IsLoading || Product == null || string.IsNullOrWhiteSpace(FormProductName))">
             Purchase
         </MudButton>
     </DialogActions>
@@ -108,6 +108,9 @@
     private int FormAmount { get; set; } = 1;
     private string? FormProductName { get; set; }
 
+    //Hack to mark a product as "unknown"
+    const string UnknownFlag = "114DFDA3-2582-4CB8-8D4C-158D81D68E5C";
+
     private void Cancel()
     {
         MudDialog.Cancel();
@@ -130,7 +133,7 @@
             }
             else
             {
-                Product = new Product {Name = "Unknown", Gtin = Barcode };
+                Product = new Product {Name = UnknownFlag, Gtin = Barcode };
             }
         }
         else
@@ -144,18 +147,11 @@
 
     private async Task OnClickPurchase()
     {
-        if (Product == null)
+        if (Product == null || string.IsNullOrEmpty(FormProductName))
         {
             return;
         }
-        if (FormProductName != null)
-        {
-            Product.Name = FormProductName;
-        }
-        else if(string.IsNullOrEmpty(FormProductName))
-        {
-            return;
-        }
+        Product.Name = FormProductName;
         DateOnly? bestBeforeDate = FormBestBefore.HasValue ? DateOnly.FromDateTime(FormBestBefore.Value) : null;
         await GrocyClient.UpsertProduct(Product, FormAmount, bestBeforeDate, FormPrice);
         Snackbar.Add($"Added \"{Product.Name}\" to Grocy", Severity.Success);
