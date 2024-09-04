@@ -82,7 +82,7 @@
             OnClick="OnClickPurchase"
             Variant="Variant.Filled"
             Color="Color.Primary"
-            Disabled= "@( IsLoading || Product == null || string.IsNullOrWhiteSpace(FormProductName))">
+            Disabled= "@( IsLoading || Product == null || (Product.Name == UnknownFlag && string.IsNullOrWhiteSpace(FormProductName)))">
             Purchase
         </MudButton>
     </DialogActions>
@@ -127,13 +127,9 @@
         {
             Product?[] products = await Task.WhenAll(ProductProviders.Select(async provider => await provider.GetProductByGtin(Barcode)));
             Product = BestValueCalculator.GetProductWithMostValue(products.Where(product => product != null).Cast<Product>().ToList());
-            if (Product != null)
+            if (Product == null)
             {
-                FormProductName = Product.Name;
-            }
-            else
-            {
-                Product = new Product {Name = UnknownFlag, Gtin = Barcode };
+                Product = new Product { Name = UnknownFlag, Gtin = Barcode };
             }
         }
         else
@@ -147,11 +143,12 @@
 
     private async Task OnClickPurchase()
     {
-        if (Product == null || string.IsNullOrEmpty(FormProductName))
+        if (Product == null || (Product.Name == UnknownFlag && string.IsNullOrEmpty(FormProductName)))
         {
             return;
         }
-        Product.Name = FormProductName;
+
+        if (FormProductName != null) Product.Name = FormProductName;
         DateOnly? bestBeforeDate = FormBestBefore.HasValue ? DateOnly.FromDateTime(FormBestBefore.Value) : null;
         await GrocyClient.UpsertProduct(Product, FormAmount, bestBeforeDate, FormPrice);
         Snackbar.Add($"Added \"{Product.Name}\" to Grocy", Severity.Success);
