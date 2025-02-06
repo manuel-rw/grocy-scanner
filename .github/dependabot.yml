@@ -1,0 +1,32 @@
+version: 2
+updates:
+  - package-ecosystem: "npm" # See documentation for possible values
+    directory: "/" # Location of package manifests
+    schedule:
+      interval: "daily"
+    target-branch: "master"
+    commit-message:
+      prefix: "chore(deps):"
+      include: "scope" # list updated dependencies in message
+    assignees:
+      - "manuel-rw"
+  - package-ecosystem: "docker" # See documentation for possible values
+    directory: "/" # Location of package manifests
+    schedule:
+      interval: "daily"
+    target-branch: "dev"
+    commit-message:
+      prefix: "chore(deps):"
+      include: "scope" # list updated dependencies in message
+    assignees:
+      - "manuel-rw"
+  - package-ecosystem: "github-actions"
+    directory: /.github
+    schedule:
+     interval: "daily"
+    target-branch: "dev"
+    commit-message:
+      prefix: "chore(deps):"
+      include: "scope" # list updated dependencies in message
+    assignees:
+      - "manuel-rw"
