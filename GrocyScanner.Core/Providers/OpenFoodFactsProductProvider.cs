@@ -26,13 +26,14 @@ public class OpenFoodFactsProductProvider : IProductProvider
                 return null;
             }
 
-            return new Product
+            var returnproduct = new Product
             {
                 Gtin = product.Code,
                 Name = product.Product.ProductName,
                 ImageUrl = product.Product.ImageUrl,
                 Categories = product.Product.CategoriesTags
             };
+            return returnproduct.Name == null ? null : returnproduct;
         }
         catch (HttpRequestException httpRequestException) when (httpRequestException.StatusCode == System.Net.HttpStatusCode.NotFound)
         {
